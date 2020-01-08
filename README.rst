@@ -49,7 +49,7 @@ Install
 
 Install the package on your system: ::
 
-    pip install django-admin-cli
+    pip install -e https://github.com/dimitern/django-admin-cli/releases/tag/0.2.0#egg=django-admin-cli
 
 Add ``admin_cli`` to ``INSTALLED_APPS``.
 
@@ -141,13 +141,15 @@ All tests are simply launched by:
 Online resources
 ================
 
-* `Code repository`_
+* `Code repository (original)`_
+* `Code repository (this fork)`_
 * `Documentation`_
 * `Travis CI server`_
 * `Coveralls report`_
 * `Landscape`_
 
-.. _`Code repository`: https://github.com/ZuluPro/django-admin-cli
+.. _`Code repository (original)`: https://github.com/ZuluPro/django-admin-cli
+.. _`Code repository (this fork)`: https://github.com/dimitern/django-admin-cli
 .. _`Documentation`: https://github.com/ZuluPro/django-admin-cli#id3
 .. _`Coveralls report`: https://coveralls.io/r/ZuluPro/django-admin-cli?branch=master
 .. _`Travis CI server`: https://travis-ci.org/ZuluPro/django-admin-cli
