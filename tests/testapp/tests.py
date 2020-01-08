@@ -1,4 +1,5 @@
 import os
+import shutil
 from mock import patch
 try:
     from StringIO import StringIO
@@ -16,9 +17,20 @@ from admin_cli.management.commands.cli import Command
 from testapp import models
 
 
+def full_path_test_file(base_name=os.path.basename(__file__)):
+    full_path = os.path.join(se.MEDIA_ROOT, base_name)
+    if not os.path.exists(full_path):
+        with open(__file__) as inf:
+            with open(full_path, 'w') as outf:
+                outf.write(inf.read())
+    return full_path
+
 class ListTest(TestCase):
     def setUp(self):
         self.stdout = StringIO()
+    
+    def tearDown(self):
+        self.stdout.close()
 
     def test_char(self):
         models.CharModel.objects.create(field='FOO')
@@ -75,6 +87,9 @@ class ListTest(TestCase):
 class ListOrderTest(TestCase):
     def setUp(self):
         self.stdout = StringIO()
+    
+    def tearDown(self):
+        self.stdout.close()
 
     def test_simple_order(self):
         models.CharModel.objects.create(field='FOO2')
@@ -103,6 +118,9 @@ class ListFieldTest(TestCase):
     def setUp(self):
         self.stdout = StringIO()
         models.TestModel.objects.create(field1='FOO', field2=42, no_verbose=6)
+    
+    def tearDown(self):
+        self.stdout.close()
 
     def test_str(self):
         call_command('cli', 'testmodel', 'list', field=['__str__'], stdout=self.stdout)
@@ -126,6 +144,9 @@ class ListFieldTest(TestCase):
 class DeleteTest(TestCase):
     def setUp(self):
         self.stdout = StringIO()
+    
+    def tearDown(self):
+        self.stdout.close()
 
     @patch('admin_cli.settings.USERS', {os.getlogin(): 'R'})
     def test_no_access(self, *args):
@@ -137,6 +158,9 @@ class DeleteAnswerTest(TestCase):
     def setUp(self):
         self.stdout = StringIO()
         self.obj = models.CharModel.objects.create(field='FOO')
+    
+    def tearDown(self):
+        self.stdout.close()
 
     @patch('admin_cli.management.commands.cli.raw_input', return_value='y')
     def test_answer_yes(self, *args):
@@ -174,6 +198,9 @@ class DeleteFilterTest(TestCase):
     def setUp(self):
         self.stdout = StringIO()
         self.obj = models.CharModel.objects.create(field='FOO')
+    
+    def tearDown(self):
+        self.stdout.close()
 
     @patch('admin_cli.management.commands.cli.raw_input', return_value='a')
     def test_dont_match(self, *args):
@@ -189,6 +216,9 @@ class DeleteFilterTest(TestCase):
 class AddTest(TestCase):
     def setUp(self):
         self.stdout = StringIO()
+    
+    def tearDown(self):
+        self.stdout.close()
 
     def test_char(self):
         call_command('cli', 'charmodel', 'add', field=['field=FOO'], stdout=self.stdout)
@@ -255,7 +285,8 @@ class AddTest(TestCase):
         self.assertEqual(2, models.ManyToManyModel.objects.get().field.count())
 
     def test_file(self):
-        call_command('cli', 'filemodel', 'add', file=['field=/etc/hosts'], stdout=self.stdout)
+        full_path = full_path_test_file()
+        call_command('cli', 'filemodel', 'add', file=['field=' + full_path], stdout=self.stdout)
 
     def test_unfound_file(self):
         with self.assertRaises(CommandError):
@@ -277,11 +308,14 @@ class AddTest(TestCase):
 class UpdateTest(TestCase):
     def setUp(self):
         self.stdout = StringIO()
+    
+    def tearDown(self):
+        self.stdout.close()
 
     @patch('admin_cli.management.commands.cli.raw_input', return_value='y')
     def test_file(self, *args):
-        src_file = '/etc/hosts'
-        self.obj = models.FileModel.objects.create(field='/etc/resolv.conf')
+        src_file = full_path_test_file('__init__.py')
+        self.obj = models.FileModel.objects.create(field=full_path_test_file())
         call_command('cli', 'filemodel', 'update', file=['field=%s' % src_file], stdout=self.stdout)
         self.assertEqual(models.FileModel.objects.get().field.name, src_file)
 
@@ -300,6 +334,9 @@ class UpdateAnswerTest(TestCase):
     def setUp(self):
         self.stdout = StringIO()
         self.obj = models.CharModel.objects.create(field='FOO')
+     
+    def tearDown(self):
+        self.stdout.close()
 
     @patch('admin_cli.management.commands.cli.raw_input', return_value='y')
     def test_answer_yes(self, *args):
@@ -336,6 +373,10 @@ class UpdateFilterTest(TestCase):
         self.stdout = StringIO()
         self.stderr = StringIO()
         self.obj = models.CharModel.objects.create(field='FOO')
+    
+    def tearDown(self):
+        self.stdout.close()
+        self.stderr.close()
 
     @patch('admin_cli.management.commands.cli.raw_input', return_value='a')
     def test_dont_match(self, *args):
@@ -348,7 +389,7 @@ class UpdateFilterTest(TestCase):
         self.assertEqual('BAR', models.CharModel.objects.get().field)
 
     @patch('admin_cli.management.commands.cli.raw_input', return_value='a')
-    def test_unknow_field(self, *args):
+    def test_unknown_field(self, *args):
         call_command('cli', 'charmodel', 'update', field=['bad_field=BAR'], filter=['field=FOO'], stdout=self.stdout, stderr=self.stderr)
         self.assertEqual('FOO', models.CharModel.objects.get().field)
 
@@ -356,6 +397,9 @@ class UpdateFilterTest(TestCase):
 class DescribeTest(TestCase):
     def setUp(self):
         self.stdout = StringIO()
+    
+    def tearDown(self):
+        self.stdout.close()
 
     def test_char(self):
         call_command('cli', 'charmodel', 'describe', stdout=self.stdout)

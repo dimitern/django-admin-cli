@@ -11,3 +11,5 @@ dist/
 coverage_html_report
 __pycache__/
 docs/_build
+tests/media/**
+.python-version

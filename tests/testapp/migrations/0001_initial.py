@@ -42,14 +42,14 @@ class Migration(migrations.Migration):
             name='FileModel',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('field', models.FileField(upload_to='')),
+                ('field', models.FileField(upload_to='', max_length=256)),
             ],
         ),
         migrations.CreateModel(
             name='ForeignKeyModel',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('field', models.ForeignKey(to='testapp.CharModel')),
+                ('field', models.ForeignKey(to='testapp.CharModel', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(

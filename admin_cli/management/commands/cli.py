@@ -12,10 +12,10 @@ from django.db import models
 from django.conf import settings
 from django.utils.timezone import now
 from django.utils.dateformat import format as strftime
-from django.utils import six
 from django.template.defaultfilters import striptags
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory
+import six
 from admin_cli import settings as cli_settings
 
 REGISTRY = admin.site._registry
@@ -68,6 +68,17 @@ class Command(BaseCommand):
         except IndexError:
             raise CommandError("Can't find model '%s' in admin registry")
 
+    @staticmethod
+    def _get_all_field_names(model_cls):
+        from itertools import chain
+        return list(set(chain.from_iterable(
+            (field.name, field.attname) if hasattr(field, 'attname') else (field.name,)
+            for field in model_cls._meta.get_fields()
+            # For complete backwards compatibility, you may want to exclude
+            # GenericForeignKey from the results.
+            if not (field.many_to_one and field.related_model is None)
+        )))
+
     def _get_field_object(self, modeladmin, field):
         """
         Get the ``object`` defined by ``field``.
@@ -83,7 +94,7 @@ class Command(BaseCommand):
         """
         if hasattr(modeladmin, field):
             obj = getattr(modeladmin, field)
-        elif field in modeladmin.model._meta.get_all_field_names():
+        elif field in self._get_all_field_names(modeladmin.model):
             obj = modeladmin.model._meta.get_field(field)
         else:
             obj = field
@@ -130,7 +141,7 @@ class Command(BaseCommand):
         """
         if field in ('__str__', '__unicode__'):
             name = unicode(modeladmin.model._meta.verbose_name)
-        elif field in modeladmin.model._meta.get_all_field_names():
+        elif field in self._get_all_field_names(modeladmin.model):
             modelfield = modeladmin.model._meta.get_field(field)
             name = modelfield.verbose_name
         elif hasattr(modeladmin, field):
@@ -158,7 +169,7 @@ class Command(BaseCommand):
         :rtype: Trying ``str``
         """
         is_django16_fk = django.VERSION < (1, 7) and \
-            field in obj._meta.get_all_field_names() and \
+            field in self._get_all_field_names(obj) and \
             isinstance(obj._meta.get_field(field), models.ForeignKey)
         if field.startswith('__'):
             value = getattr(obj, field)()

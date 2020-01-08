@@ -1,10 +1,9 @@
 from __future__ import unicode_literals
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 
-___all__ = ('CharModel', 'IntegerModel', 'TextModel', 'BooleanModel'
-            'DateModel', 'DateTimeModel', 'ForeignKeyModel', 'ManyToManyModel',
-            'FileModel', 'TestModel',)
+__all__ = ('CharModel', 'IntegerModel', 'TextModel', 'BooleanModel'
+           'DateModel', 'DateTimeModel', 'ForeignKeyModel', 'ManyToManyModel',
+           'FileModel', 'TestModel',)
 
 
 class CharModel(models.Model):
@@ -32,7 +31,7 @@ class DateTimeModel(models.Model):
 
 
 class ForeignKeyModel(models.Model):
-    field = models.ForeignKey(CharModel)
+    field = models.ForeignKey(CharModel, on_delete=models.CASCADE)
 
 
 class ManyToManyModel(models.Model):
@@ -40,10 +39,9 @@ class ManyToManyModel(models.Model):
 
 
 class FileModel(models.Model):
-    field = models.FileField(upload_to='.')
+    field = models.FileField(upload_to='.', max_length=256)
 
 
-@python_2_unicode_compatible
 class TestModel(models.Model):
     field1 = models.CharField(max_length=10, verbose_name="Field #1")
     field2 = models.IntegerField(verbose_name="Field #2")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import absolute_import
 import os
 import sys
 import django
@@ -9,6 +9,29 @@ from django.core.management import call_command
 here = os.path.dirname(os.path.abspath(__file__))
 parent = os.path.dirname(here)
 sys.path[0:0] = [here, parent]
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ]
+        }
+    }
+]
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_ROOT = os.path.join(BASE_DIR, 'tests/media')
@@ -28,7 +51,9 @@ INSTALLED_APPS = (
 
 settings.configure(
     MEDIA_ROOT=MEDIA_ROOT,
-    MIDDLEWARE_CLASSES=(),
+    MIDDLEWARE_CLASSES=MIDDLEWARE,
+    MIDDLEWARE=MIDDLEWARE,
+    TEMPLATES=TEMPLATES,
     CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}},
     INSTALLED_APPS=INSTALLED_APPS,
     DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory:'}},
@@ -40,8 +65,7 @@ settings.configure(
 
 
 def main():
-    if django.VERSION >= (1, 7):
-        django.setup()
+    django.setup()
     if not os.path.exists(os.path.join(here, 'testapp/migrations/0001_initial.py')):
         call_command('makemigrations')
     from django.contrib import admin

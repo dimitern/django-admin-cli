@@ -1,12 +1,15 @@
 from setuptools import setup, find_packages
 import admin_cli
 
+with open('README.rst') as f:
+    readme = f.read()
+
 setup(
     name='django-admin-cli',
     version=admin_cli.__version__,
     url=admin_cli.__url__,
     description=admin_cli.__doc__,
-    long_description=open('README.rst').read(),
+    long_description=readme,
     author='ZuluPro (Anthony MONTHE)',
     author_email='anthony.monthe@gmail.com',
     license=admin_cli.__license__,
