@@ -49,8 +49,8 @@ Install
 
 Install the package on your system: ::
 
-    pip install -e https://github.com/dimitern/django-admin-cli/releases/tag/0.2.0#egg=django-admin-cli
-
+    pip install -e git+https://github.com/dimitern/django-admin-cli.git@0.2.0#egg=django-admin-cli
+    
 Add ``admin_cli`` to ``INSTALLED_APPS``.
 
 Usage
